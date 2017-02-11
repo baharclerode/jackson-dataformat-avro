@@ -18,7 +18,7 @@ final class ScalarReaderWrapper extends AvroStructureReader
 
     private ScalarReaderWrapper(AvroScalarReader wrappedReader,
             AvroParserImpl parser, BinaryDecoder decoder) {
-        super(null, TYPE_ROOT);
+        super(null, TYPE_ROOT, wrappedReader.getTypeId());
         _wrappedReader = wrappedReader;
         _parser = parser;
         _decoder = decoder;

@@ -59,6 +59,16 @@ public class AvroParserImpl extends AvroParser
      */
 
     @Override
+    public boolean canReadTypeId() {
+        return getTypeId() != null;
+    }
+
+    @Override
+    public Object getTypeId() {
+        return _avroContext.getTypeId();
+    }
+
+    @Override
     public JsonToken nextToken() throws IOException
     {
         _binaryValue = null;

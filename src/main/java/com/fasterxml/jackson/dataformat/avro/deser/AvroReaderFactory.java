@@ -1,10 +1,22 @@
 package com.fasterxml.jackson.dataformat.avro.deser;
 
-import java.util.*;
+import java.util.List;
+import java.util.TreeMap;
 
 import org.apache.avro.Schema;
+import org.apache.avro.specific.SpecificData;
 
-import com.fasterxml.jackson.dataformat.avro.deser.AvroScalarReader.*;
+import com.fasterxml.jackson.dataformat.avro.deser.AvroScalarReader.BooleanReader;
+import com.fasterxml.jackson.dataformat.avro.deser.AvroScalarReader.BytesReader;
+import com.fasterxml.jackson.dataformat.avro.deser.AvroScalarReader.DoubleReader;
+import com.fasterxml.jackson.dataformat.avro.deser.AvroScalarReader.EnumDecoder;
+import com.fasterxml.jackson.dataformat.avro.deser.AvroScalarReader.FixedDecoder;
+import com.fasterxml.jackson.dataformat.avro.deser.AvroScalarReader.FloatReader;
+import com.fasterxml.jackson.dataformat.avro.deser.AvroScalarReader.IntReader;
+import com.fasterxml.jackson.dataformat.avro.deser.AvroScalarReader.LongReader;
+import com.fasterxml.jackson.dataformat.avro.deser.AvroScalarReader.NullReader;
+import com.fasterxml.jackson.dataformat.avro.deser.AvroScalarReader.ScalarUnionReader;
+import com.fasterxml.jackson.dataformat.avro.deser.AvroScalarReader.StringReader;
 
 public class AvroReaderFactory
 {
@@ -112,29 +124,35 @@ public class AvroReaderFactory
     
     private AvroStructureReader createArrayReader(Schema schema)
     {
+        String typeId = schema.getProp(SpecificData.CLASS_PROP);
         Schema elementType = schema.getElementType();
         AvroScalarReader scalar = createDecoder(elementType);
         if (scalar != null) {
-            return ArrayReader.scalar(scalar);
+            return ArrayReader.scalar(scalar, typeId);
         }
-        return ArrayReader.nonScalar(createReader(elementType));
+        return ArrayReader.nonScalar(createReader(elementType), typeId);
     }
 
     private AvroStructureReader createMapReader(Schema schema)
     {
         Schema elementType = schema.getValueType();
+        String keyTypeId = elementType.getProp(SpecificData.KEY_CLASS_PROP);
+        String typeId = schema.getProp(SpecificData.CLASS_PROP);
+        if (typeId == null) {
+            typeId = elementType.getProp(SpecificData.CLASS_PROP);
+        }
         AvroScalarReader dec = createDecoder(elementType);
         if (dec != null) {
-            return new MapReader(dec);
+            return new MapReader(dec, typeId, keyTypeId);
         }
-        return new MapReader(createReader(elementType));
+        return new MapReader(createReader(elementType), typeId, keyTypeId);
     }
 
     private AvroStructureReader createRecordReader(Schema schema)
     {
         final List<Schema.Field> fields = schema.getFields();
         AvroFieldWrapper[] fieldReaders = new AvroFieldWrapper[fields.size()];
-        RecordReader reader = new RecordReader(fieldReaders);
+        RecordReader reader = new RecordReader(fieldReaders, schema.getFullName());
         _knownReaders.put(_typeName(schema), reader);
         int i = 0;
         for (Schema.Field field : fields) {

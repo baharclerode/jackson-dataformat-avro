@@ -26,12 +26,17 @@ final class UnionReader extends AvroStructureReader
             AvroStructureReader[] memberReaders,
             BinaryDecoder decoder, AvroParserImpl parser)
     {
-        super(parent, TYPE_ROOT);
+        super(parent, TYPE_ROOT, null);
         _memberReaders = memberReaders;
         _decoder = decoder;
         _parser = parser;
     }
-    
+
+    @Override
+    public Object getTypeId() {
+        return _currentReader == null ? null : _currentReader.getTypeId();
+    }
+
     @Override
     public UnionReader newReader(AvroReadContext parent,
             AvroParserImpl parser, BinaryDecoder decoder) {

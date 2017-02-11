@@ -3,12 +3,22 @@ package com.fasterxml.jackson.dataformat.avro;
 import java.io.IOException;
 
 import org.apache.avro.Schema;
+import org.apache.avro.specific.SpecificData;
 
-import com.fasterxml.jackson.core.*;
-
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.BeanProperty;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.jsontype.impl.ClassNameIdResolver;
+import com.fasterxml.jackson.databind.jsontype.impl.TypeDeserializerBase;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+
+import static com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 /**
  * Module that adds support for handling datatypes specific to the standard
@@ -26,6 +36,7 @@ public class AvroModule extends SimpleModule
         addSerializer(new SchemaSerializer());
         // 08-Mar-2016, tatu: to fix [dataformat-avro#35], need to prune 'schema' property:
         setSerializerModifier(new AvroSerializerModifier());
+
     }
 
     /**
@@ -55,4 +66,5 @@ public class AvroModule extends SimpleModule
             gen.writeString(value.toString());
         }
     }
+
 }

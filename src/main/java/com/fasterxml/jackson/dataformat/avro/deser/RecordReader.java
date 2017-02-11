@@ -23,15 +23,15 @@ final class RecordReader extends AvroStructureReader
     protected int _state;
     protected final int _count;
     
-    public RecordReader(AvroFieldWrapper[] fieldReaders) {
-        this(null, fieldReaders, null, null);
+    public RecordReader(AvroFieldWrapper[] fieldReaders, Object typeId) {
+        this(null, fieldReaders, null, null, typeId);
     }
 
     private RecordReader(AvroReadContext parent,
             AvroFieldWrapper[] fieldReaders,
-            BinaryDecoder decoder, AvroParserImpl parser)
+            BinaryDecoder decoder, AvroParserImpl parser, Object typeId)
     {
-        super(parent, TYPE_OBJECT);
+        super(parent, TYPE_OBJECT, typeId);
         _fieldReaders = fieldReaders;
         _decoder = decoder;
         _parser = parser;
@@ -41,11 +41,17 @@ final class RecordReader extends AvroStructureReader
     @Override
     public RecordReader newReader(AvroReadContext parent,
             AvroParserImpl parser, BinaryDecoder decoder) {
-        return new RecordReader(parent, _fieldReaders, decoder, parser);
+        return new RecordReader(parent, _fieldReaders, decoder, parser, _typeId);
     }
 
     @Override
     public String getCurrentName() { return _currentName; }
+
+    @Override
+    public Object getTypeId()
+    {
+        return _currToken == JsonToken.FIELD_NAME ? null : super.getTypeId();
+    }
 
     @Override
     public JsonToken nextToken() throws IOException

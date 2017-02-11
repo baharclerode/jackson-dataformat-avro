@@ -22,19 +22,19 @@ abstract class ArrayReader extends AvroStructureReader
     protected String _currentName;
     
     protected ArrayReader(AvroReadContext parent,
-            AvroParserImpl parser, BinaryDecoder decoder)
+            AvroParserImpl parser, BinaryDecoder decoder, Object typeId)
     {
-        super(parent, TYPE_ARRAY);
+        super(parent, TYPE_ARRAY, typeId);
         _parser = parser;
         _decoder = decoder;
     }
 
-    public static ArrayReader scalar(AvroScalarReader reader) {
-        return new Scalar(reader);
+    public static ArrayReader scalar(AvroScalarReader reader, Object typeId) {
+        return new Scalar(reader, typeId);
     }
 
-    public static ArrayReader nonScalar(AvroStructureReader reader) {
-        return new NonScalar(reader);
+    public static ArrayReader nonScalar(AvroStructureReader reader, Object typeId) {
+        return new NonScalar(reader, typeId);
     }
 
     @Override
@@ -68,20 +68,20 @@ abstract class ArrayReader extends AvroStructureReader
     {
         private final AvroScalarReader _elementReader;
         
-        public Scalar(AvroScalarReader reader) {
-            this(null, reader, null, null);
+        public Scalar(AvroScalarReader reader, Object typeId) {
+            this(null, reader, null, null, typeId);
         }
 
         private Scalar(AvroReadContext parent, AvroScalarReader reader, 
-                AvroParserImpl parser, BinaryDecoder decoder) {
-            super(parent, parser, decoder);
+                AvroParserImpl parser, BinaryDecoder decoder, Object typeId) {
+            super(parent, parser, decoder, typeId);
             _elementReader = reader;
         }
         
         @Override
         public Scalar newReader(AvroReadContext parent,
                 AvroParserImpl parser, BinaryDecoder decoder) {
-            return new Scalar(parent, _elementReader, parser, decoder);
+            return new Scalar(parent, _elementReader, parser, decoder, _typeId);
         }
 
         @Override
@@ -132,21 +132,21 @@ abstract class ArrayReader extends AvroStructureReader
     {
         private final AvroStructureReader _elementReader;
         
-        public NonScalar(AvroStructureReader reader) {
-            this(null, reader, null, null);
+        public NonScalar(AvroStructureReader reader, Object typeId) {
+            this(null, reader, null, null, typeId);
         }
 
         private NonScalar(AvroReadContext parent,
                 AvroStructureReader reader, 
-                AvroParserImpl parser, BinaryDecoder decoder) {
-            super(parent, parser, decoder);
+                AvroParserImpl parser, BinaryDecoder decoder, Object typeId) {
+            super(parent, parser, decoder, typeId);
             _elementReader = reader;
         }
         
         @Override
         public NonScalar newReader(AvroReadContext parent,
                 AvroParserImpl parser, BinaryDecoder decoder) {
-            return new NonScalar(parent, _elementReader, parser, decoder);
+            return new NonScalar(parent, _elementReader, parser, decoder, _typeId);
         }
 
         @Override
